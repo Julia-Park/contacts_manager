@@ -107,19 +107,20 @@ let Manager = (function() {
 
 let App = class App {
   constructor() {
-    this.manager = Manager.new();
-    this.view = View.new();
+    this.manager = new Manager();
+    this.view = new View();
   } // get initial data, render display
 }
 
 let View = class View {
   constructor() {
+
+
   }
 }
 
-// new App();
+new App();
 
-let manager = new Manager();
 
 /*
 Initial flow:
