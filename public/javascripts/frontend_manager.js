@@ -1,4 +1,4 @@
-class Contact {
+let Contact = class Contact {
   constructor(data) {
     this.id = data.id;
     this.full_name = data.full_name;
@@ -12,58 +12,68 @@ class Contact {
   }
 }
 
-class Manager {
-  constructor() {
-    this.contacts = [];
-    this.initializeContacts();
-  }
+let Manager = (function() {
+  let contacts = [];
 
-  initializeContacts() { // fetch contacts, create contact objects
-    fetch('/api/contacts').then(async response => {
-      let data;
-
-      if (response.status === 200) {
-        data = await response.json();
-        data.forEach(entry => this.contacts.push(new Contact(entry)));
+  return class Manager {
+    constructor() {
+      this.initializeContacts();
+    }
+  
+    initializeContacts() { // fetch contacts, create contact objects
+      fetch('/api/contacts').then(async response => {
+        let data;
+  
+        if (response.status === 200) {
+          data = await response.json();
+          data.forEach(this.addContact);
+        }
+      });
+    }
+  
+    addContact(data) {
+      contacts.push(new Contact(data));
+    }
+  
+    findContact(id) {
+      return contacts.filter(contact => contact.id === parseInt(id, 10))[0];
+    }
+  
+    createContact(data) { // accepts data object containing contact parameters
+      // make request
+      let requestOptions = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        }
       }
-    });
-  }
+  
+      fetch('/api/contacts', requestOptions).then(async response => {
+        // verify successful response; if unsuccessful, then...?
+        switch (response.status) {
+          case 201:
+          // save response body as Contact
+          // re render page with new contact
+          let contactData = await response.json();
+          this.addContact(contactData);
 
-  findContact(id) {
-    return this.contacts.filter(contact => contact.id === parseInt(id, 10))[0];
-  }
+          break;
+        }
 
-  createContact() {
-    // make request
-    let requestOptions = {
-      method: 'POST',
-      body: '',
+      });
     }
-
-    fetch('/api/contacts', requestOptions);
   }
+})();
 
-  updateContact(id) {
-    // make request
-    let requestOptions = {
-      method: 'PUT',
-      body: JSON.stringify(),
-    }
-
-    fetch(`/api/contacts${id}`, requestOptions);
-    // update internal collection with new data
-    // re-render
-  }
-}
-
-class App {
+let App = class App {
   constructor() {
     this.manager = Manager.new();
     this.view = View.new();
   } // get initial data, render display
 }
 
-class View {
+let View = class View {
   constructor() {
   }
 }
