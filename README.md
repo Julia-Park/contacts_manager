@@ -5,7 +5,6 @@ Server-side API provided by Launch School.
 
 # Features and Requirements:
 - Should use Handlebars for templating
-- There are some animations
 
 **Add contact:**
 - Add contact button on home page
@@ -31,3 +30,8 @@ Server-side API provided by Launch School.
 - Allow for creation of tags ("marketing", "sales", "engineering")
 - Allow for selection of a tag to attach at contact creation
 - Allow for displaying of all contacts for a given tag
+
+**Styling**
+- Header banner
+- Some animations for transitions
+- Footer
