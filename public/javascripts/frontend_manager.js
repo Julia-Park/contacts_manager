@@ -40,7 +40,6 @@ let Manager = (function() {
     }
   
     createContact(data) { // accepts data object containing contact parameters
-      // make request
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify(data),
@@ -50,17 +49,33 @@ let Manager = (function() {
       }
   
       fetch('/api/contacts', requestOptions).then(async response => {
-        // verify successful response; if unsuccessful, then...?
         switch (response.status) {
           case 201:
-          // save response body as Contact
-          // re render page with new contact
           let contactData = await response.json();
           this.addContact(contactData);
-
           break;
         }
+      });
+    }
 
+    updateContact(id, data) {
+      data.id = id;
+
+      let requestOptions = {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+  
+      fetch(`/api/contacts/${id}`, requestOptions).then(async response => {
+        switch (response.status) {
+          case 201:
+          let contactData = await response.json();
+          this.findContact(id).update(contactData);
+          break;
+        }
       });
     }
   }
