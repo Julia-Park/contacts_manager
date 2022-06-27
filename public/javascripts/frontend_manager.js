@@ -12,8 +12,6 @@ class Manager {
   constructor() {
     this.contacts = [];
     this.initializeContacts();
-
-    // this.view = new View();
   }
 
   initializeContacts() { // fetch contacts, create contact objects
@@ -23,20 +21,30 @@ class Manager {
       if (response.status === 200) {
         data = await response.json();
         data.forEach(entry => this.contacts.push(new Contact(entry)));
-      }
-      
-      console.log(this.contacts);
+      }      
     });
   }
+
+  findContact(id) {
+    return this.contacts.filter(contact => contact.id === parseInt(id, 10));
+  }
+}
+
+class App {
+  constructor() {
+    this.manager = Manager.new();
+    this.view = View.new();
+  } // get initial data, render display
 }
 
 class View {
   constructor() {
-    // this.render();
   }
 }
 
-new Manager();
+// new App();
+
+let manager = new Manager();
 
 /*
 Initial flow:
