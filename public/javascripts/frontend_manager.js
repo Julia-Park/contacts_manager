@@ -1,10 +1,14 @@
 class Contact {
   constructor(data) {
     this.id = data.id;
-    this.fullName = data.full_name;
+    this.full_name = data.full_name;
     this.email = data.email;
-    this.phoneNumber = data.phone_number;
+    this.phone_number = data.phone_number;
     this.tags = data.tags;
+  }
+
+  update(data) {
+    Object.keys(data).forEach(key => this[key] = data[key]);
   }
 }
 
@@ -21,12 +25,34 @@ class Manager {
       if (response.status === 200) {
         data = await response.json();
         data.forEach(entry => this.contacts.push(new Contact(entry)));
-      }      
+      }
     });
   }
 
   findContact(id) {
-    return this.contacts.filter(contact => contact.id === parseInt(id, 10));
+    return this.contacts.filter(contact => contact.id === parseInt(id, 10))[0];
+  }
+
+  createContact() {
+    // make request
+    let requestOptions = {
+      method: 'POST',
+      body: '',
+    }
+
+    fetch('/api/contacts', requestOptions);
+  }
+
+  updateContact(id) {
+    // make request
+    let requestOptions = {
+      method: 'PUT',
+      body: JSON.stringify(),
+    }
+
+    fetch(`/api/contacts${id}`, requestOptions);
+    // update internal collection with new data
+    // re-render
   }
 }
 
