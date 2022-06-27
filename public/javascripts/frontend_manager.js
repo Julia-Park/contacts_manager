@@ -13,28 +13,38 @@ let Contact = class Contact {
 }
 
 let Manager = (function() {
-  let contacts = [];
+  let contacts;
 
   return class Manager {
     constructor() {
-      this.initializeContacts();
+      this.loadContacts();
     }
   
-    initializeContacts() { // fetch contacts, create contact objects
+    loadContacts() { // fetch contacts, create contact objects
       fetch('/api/contacts').then(async response => {
         let data;
-  
+
         if (response.status === 200) {
+          contacts = [];
           data = await response.json();
-          data.forEach(this.addContact);
+          data.forEach(this.addToContacts);
         }
       });
     }
   
-    addContact(data) {
-      contacts.push(new Contact(data));
+    addToContacts(contactData) {
+      contacts.push(new Contact(contactData));
     }
-  
+
+    removeFromContacts(id) {
+      let idx = contacts.findIndex(contact => contact.id === parseInt(id, 10));
+      contacts.splice(idx, 1);
+    }
+
+    getContacts() {
+      return contacts.slice();
+    }
+
     findContact(id) {
       return contacts.filter(contact => contact.id === parseInt(id, 10))[0];
     }
@@ -52,7 +62,7 @@ let Manager = (function() {
         switch (response.status) {
           case 201:
           let contactData = await response.json();
-          this.addContact(contactData);
+          this.addToContacts(contactData);
           break;
         }
       });
@@ -75,6 +85,20 @@ let Manager = (function() {
           let contactData = await response.json();
           this.findContact(id).update(contactData);
           break;
+        }
+      });
+    }
+
+    deleteContact(id) {
+      let requestOptions = {
+        method: 'DELETE',
+      }
+
+      fetch(`/api/contacts/${id}`, requestOptions).then(response => {
+        switch (response.status) {
+          case 204:
+            this.removeFromContacts(id);
+            break;
         }
       });
     }
