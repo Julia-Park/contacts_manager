@@ -23,3 +23,7 @@ section#utility {
 section#contact {
 
 }
+
+section#new {
+  display: none;
+}

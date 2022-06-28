@@ -111,12 +111,32 @@ let App = class App {
     this.manager = new Manager();
     this.view = new View();
     this.manager.contactsLoaded.then(() => this.displayContacts());
+    this.view.renderNewContactForm();
+    this.addListeners();
   }
 
   async displayContacts() {
     let contacts = await this.manager.getContacts();
-    console.log(contacts);
     this.view.renderContacts(contacts);
+  }
+
+  addListeners() {
+    let addContact = document.querySelector('#addContact');
+    addContact.addEventListener('click', event => {
+      event.preventDefault();
+      this.view.transitionToContactForm();
+    });
+
+    let newContact = document.querySelector('#new');
+    newContact.addEventListener('submit', event => {
+      event.preventDefault();
+      // validate and then submit the data
+    });
+
+    newContact.addEventListener('reset', () => {
+      this.view.transitionToMain();
+    });
+
   }
 }
 
@@ -151,6 +171,15 @@ let View = class View {
     this.insertHTML('#new', 'contactForm', { formTitle: 'Create Contact' });
   }
 
+  transitionToContactForm() {
+    document.querySelector('main').style.display = 'none';
+    document.querySelector('#new').style.display = 'inline';
+  }
+
+  transitionToMain() {
+    document.querySelector('#new').style.display = 'none';
+    document.querySelector('main').style.display = 'inline';
+  }
   
 }
 
