@@ -108,14 +108,27 @@ let Manager = (function() {
 let App = class App {
   constructor() {
     this.manager = new Manager();
-    this.view = new View();
+    this.view = new View(manager.getContacts());
   } // get initial data, render display
 }
 
 let View = class View {
-  constructor() {
+  constructor(contacts) {
+    this.templates = {};
+    this.compileTemplates();
+    // register Handlebars templates and partials
+    Handbars.
+    // if there are contacts, display contacts with Handlebar
+  }
 
-
+  compileHandlebars() {
+    let hbTemplates = document.querySelectorAll('script[type="text/x-handlebars"]');
+    hbTemplates.forEach(template => {
+      templates[template.id] = Handlebars.compile(template.innerHTML());
+      if (template.classList.contains('hbPartial')) {
+        Handlebars.registerPartial(template.id, template.innerHTML());
+      }
+    });
   }
 }
 
