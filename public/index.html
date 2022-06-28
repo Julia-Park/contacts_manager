@@ -17,14 +17,14 @@
 
   <main>
     <section id="utility">
-      <a href="#new" id="addContact">
+      <a href="#form" id="addContact">
         <button type="button">Add Contact</button>
       </a>
     </section>
     <section id="contacts"></section>
   </main>
 
-  <section id="new"></section>
+  <section id="form"></section>
   <section id="update"></section>
 
   <footer></footer>
@@ -34,15 +34,15 @@
     <form>
       <p>
         <label for="full_name">Full name: </label>
-        <input id="full_name" type="text">
+        <input id="full_name" type="text" pattern=".+" data-alert="Please enter a name">
       </p>
       <p>
         <label for="email">Email address: </label>
-        <input id="email" type="text">
+        <input id="email" type="email" pattern=".+@.+\..+" data-alert="Please enter a valid email"> 
       </p>
       <p>
         <label for="phone_number">Telephone number: </label>
-        <input id="phone_number" type="text">
+        <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number">
       </p>
       <p>
         <input name="submit" type="submit" value="Submit">

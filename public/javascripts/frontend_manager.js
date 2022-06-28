@@ -127,10 +127,17 @@ let App = class App {
       this.view.transitionToContactForm();
     });
 
-    let newContact = document.querySelector('#new');
-    newContact.addEventListener('submit', event => {
+    let newContact = document.querySelector('#form');
+    newContact.addEventListener('submit', async event => {
       event.preventDefault();
-      // validate and then submit the data
+
+      try {
+        let validData = await this.view.validateForm();
+        this.manager.createContact(validData);
+      } catch (errorMsg) {
+        console.log(errorMsg);
+      }
+
     });
 
     newContact.addEventListener('reset', () => {
@@ -168,19 +175,39 @@ let View = class View {
   }
 
   renderNewContactForm() {
-    this.insertHTML('#new', 'contactForm', { formTitle: 'Create Contact' });
+    this.insertHTML('#form', 'contactForm', { formTitle: 'Create Contact' });
   }
 
   transitionToContactForm() {
     document.querySelector('main').style.display = 'none';
-    document.querySelector('#new').style.display = 'inline';
+    document.querySelector('#form').style.display = 'inline';
   }
 
   transitionToMain() {
-    document.querySelector('#new').style.display = 'none';
+    document.querySelector('#form').style.display = 'none';
     document.querySelector('main').style.display = 'inline';
   }
   
+  validateForm() {
+    return new Promise((resolve, reject) => {
+      let inputs = document.querySelectorAll('#form input');
+      let formData = {};
+
+      inputs.forEach(input => {
+        let pattern = input.getAttribute('pattern');
+        if (pattern) {
+          let patternMatch = input.value.search(pattern);
+          if (patternMatch < 0) reject(input.getAttribute('data-alert'));
+        }
+
+        if (input.id) {
+          formData[input.id] = input.value;
+        }
+      });
+
+      resolve(formData);
+    });
+  }
 }
 
 let start;
