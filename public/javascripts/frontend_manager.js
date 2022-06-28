@@ -17,19 +17,19 @@ let Manager = (function() {
 
   return class Manager {
     constructor() {
-      this.loadContacts();
+      this.contactsLoaded = this.loadContacts();
     }
   
-    loadContacts() { // fetch contacts, create contact objects
-      fetch('/api/contacts').then(async response => {
-        let data;
+    async loadContacts() { // fetch contacts, create contact objects
+      let response = await fetch('/api/contacts');
+      
+      let data;
 
-        if (response.status === 200) {
-          contacts = [];
-          data = await response.json();
-          data.forEach(this.addToContacts);
-        }
-      });
+      if (response.status === 200) {
+        contacts = [];
+        data = await response.json();
+        data.forEach(this.addToContacts);
+      }
     }
   
     addToContacts(contactData) {
@@ -41,7 +41,8 @@ let Manager = (function() {
       contacts.splice(idx, 1);
     }
 
-    getContacts() {
+    async getContacts() {
+      await this.contactsLoaded;
       return contacts.slice();
     }
 
@@ -108,31 +109,47 @@ let Manager = (function() {
 let App = class App {
   constructor() {
     this.manager = new Manager();
-    this.view = new View(manager.getContacts());
-  } // get initial data, render display
+    this.view = new View();
+    this.manager.contactsLoaded.then(() => this.displayContacts());
+  }
+
+  async displayContacts() {
+    let contacts = await this.manager.getContacts();
+    console.log(contacts);
+    this.view.renderContacts(contacts);
+  }
 }
 
 let View = class View {
-  constructor(contacts) {
+  constructor() {
     this.templates = {};
-    this.compileTemplates();
-    // register Handlebars templates and partials
-    Handbars.
-    // if there are contacts, display contacts with Handlebar
+    this.compileHandlebars();
   }
 
   compileHandlebars() {
     let hbTemplates = document.querySelectorAll('script[type="text/x-handlebars"]');
+    let templates = this.templates;
+
     hbTemplates.forEach(template => {
-      templates[template.id] = Handlebars.compile(template.innerHTML());
+      templates[template.id] = Handlebars.compile(template.innerHTML);
       if (template.classList.contains('hbPartial')) {
-        Handlebars.registerPartial(template.id, template.innerHTML());
+        Handlebars.registerPartial(template.id, template.innerHTML);
       }
     });
   }
+
+  renderContacts(contacts) {
+    let contactsSection = document.querySelector('#contacts');
+
+    contactsSection.insertAdjacentHTML('beforeend', this.templates.contactList({ contacts }));
+  }
 }
 
-new App();
+let start;
+
+document.addEventListener('DOMContentLoaded', () => {
+  start = new App();
+});
 
 
 /*
