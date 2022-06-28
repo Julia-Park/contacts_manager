@@ -138,11 +138,20 @@ let View = class View {
     });
   }
 
-  renderContacts(contacts) {
-    let contactsSection = document.querySelector('#contacts');
-
-    contactsSection.insertAdjacentHTML('beforeend', this.templates.contactList({ contacts }));
+  insertHTML(selector, templateName, dataObject, position = 'beforeend') {
+    let section = document.querySelector(selector);
+    section.insertAdjacentHTML(position, this.templates[templateName](dataObject));
   }
+
+  renderContacts(contacts) {
+    this.insertHTML('#contacts', 'contactList', { contacts });
+  }
+
+  renderNewContactForm() {
+    this.insertHTML('#new', 'contactForm', { formTitle: 'Create Contact' });
+  }
+
+  
 }
 
 let start;
@@ -150,11 +159,3 @@ let start;
 document.addEventListener('DOMContentLoaded', () => {
   start = new App();
 });
-
-
-/*
-Initial flow:
-- Initialize Manager
-  - Get initial data
-  - Set up initial render
-*/

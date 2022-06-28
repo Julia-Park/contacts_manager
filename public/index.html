@@ -18,9 +18,33 @@
   <main>
     <section id="utility"></section>
     <section id="contacts"></section>
+    <section id="new"></section>
+    <section id="update"></section>
   </main>
 
   <footer></footer>
+
+  <script id="contactForm" class="hbTemplate" type="text/x-handlebars">
+    <h2>{{formTitle}}</h2>
+    <form>
+      <p>
+        <label for="full_name">Full name: </label>
+        <input id="full_name" type="text">
+      </p>
+      <p>
+        <label for="email">Email address: </label>
+        <input id="email" type="text">
+      </p>
+      <p>
+        <label for="phone_number">Telephone number: </label>
+        <input id="phone_number" type="text">
+      </p>
+      <p>
+        <button type="submit">Submit</button>
+        <button type="button">Cancel</button>
+      </p>
+    </form>
+  </script>
 
   <script id="contactList" class="hbTemplate" type="text/x-handlebars">
     {{#each contacts}}
