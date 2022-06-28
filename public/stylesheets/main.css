@@ -4,12 +4,22 @@ body {
 }
 
 header {
-  /* height: 150px; */
   width: 100%;
   padding-top: 50px;
   padding-bottom: 50px;
-  position: absolute;
+  /* position: absolute; */
   top: 0;
   left: 0;
   background-color: goldenrod;
+}
+
+main {
+}
+
+section#utility {
+
+}
+
+section#contact {
+
 }
