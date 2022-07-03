@@ -50,7 +50,7 @@ let Manager = (function() {
       return contacts.filter(contact => contact.id === parseInt(id, 10))[0];
     }
   
-    createContact(data) { // accepts data object containing contact parameters
+    async createContact(data) { // accepts data object containing contact parameters
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify(data),
@@ -59,7 +59,7 @@ let Manager = (function() {
         }
       }
   
-      fetch('/api/contacts', requestOptions).then(async response => {
+      await fetch('/api/contacts', requestOptions).then(async response => {
         switch (response.status) {
           case 201:
           let contactData = await response.json();
@@ -121,6 +121,8 @@ let App = class App {
   }
 
   addListeners() {
+    this.view.bindInputKeyupEvent();
+  
     let addContact = document.querySelector('#addContact');
     addContact.addEventListener('click', event => {
       event.preventDefault();
@@ -132,8 +134,11 @@ let App = class App {
       event.preventDefault();
 
       try {
-        let validData = await this.view.validateForm();
-        this.manager.createContact(validData);
+        let validation = this.view.validateForm();
+        let validData = await validation;
+        await this.manager.createContact(validData);
+        this.displayContacts();
+        this.view.transitionToMain();
       } catch (errorMsg) {
         console.log(errorMsg);
       }
@@ -166,12 +171,32 @@ let View = class View {
   }
 
   insertHTML(selector, templateName, dataObject, position = 'beforeend') {
-    let section = document.querySelector(selector);
+    let section;
+    
+    if (selector instanceof HTMLElement) {
+      section = selector;
+    } else {
+      section = document.querySelector(selector);
+    }
+
     section.insertAdjacentHTML(position, this.templates[templateName](dataObject));
   }
 
+  clearContents(selector) {
+    let section;
+    if (selector instanceof HTMLElement) {
+      section = selector;
+    } else {
+      section = document.querySelector(selector);
+    }
+
+    section.textContent = '';
+  }
+
   renderContacts(contacts) {
-    this.insertHTML('#contacts', 'contactList', { contacts });
+    let contactsSection = document.querySelector('#contacts');
+    this.clearContents(contactsSection)
+    this.insertHTML(contactsSection, 'contactList', { contacts });
   }
 
   renderNewContactForm() {
@@ -184,28 +209,74 @@ let View = class View {
   }
 
   transitionToMain() {
-    document.querySelector('#form').style.display = 'none';
+    let form = document.querySelector('#form');
+    form.style.display = 'none';
+    form.querySelector('form').reset();
     document.querySelector('main').style.display = 'inline';
   }
   
   validateForm() {
-    return new Promise((resolve, reject) => {
-      let inputs = document.querySelectorAll('#form input');
+    return new Promise(async (resolve, reject) => {
+      let inputs = document.querySelectorAll('#form input'); // get all the inputs to validate
       let formData = {};
+      let validations = [];
 
+      // for each input, create promise for their validation and store in validations
       inputs.forEach(input => {
-        let pattern = input.getAttribute('pattern');
-        if (pattern) {
-          let patternMatch = input.value.search(pattern);
-          if (patternMatch < 0) reject(input.getAttribute('data-alert'));
-        }
+        validations.push(new Promise((resolve, reject) => {
+          let alert = input.parentNode.querySelector('div.alert');
 
-        if (input.id) {
-          formData[input.id] = input.value;
-        }
+          this.validatePattern(input).then(validValue => { // if valid, put in formData, remove alert
+            if (input.id) formData[input.id] = validValue;
+            if (alert) alert.remove();
+            resolve();
+          }).catch(errorMsg => {
+            if (!alert) this.displayError(input, errorMsg);
+            reject(errorMsg);
+          });
+        }));
       });
 
-      resolve(formData);
+      try {
+        await Promise.all(validations); // wait for all validations to complete
+        resolve(formData);  // if all successful, resolve
+      } catch(errorMsg) {
+        reject(errorMsg); // if one unsuccessful, reject
+      }
+    });
+  }
+
+  validatePattern(element) {
+    let pattern = element.getAttribute('pattern');
+
+    return new Promise((resolve, reject) => {
+      if (pattern) {
+        let patternMatch = element.value.search(pattern);
+        if (patternMatch < 0) reject(element.getAttribute('data-alert')); 
+      }
+
+      resolve(element.value);
+    });
+  }
+
+  displayError(element, message) {
+    this.insertHTML(element, 'alert', { message }, 'afterend');
+    let alert = element.parentNode.querySelector('div.alert');
+  }
+
+  bindInputKeyupEvent() {
+    document.querySelector('#form').addEventListener('keyup', async event => {
+      if (event.target.tagName === 'INPUT') {
+        let alert = event.target.parentNode.querySelector('div.alert');
+        if (alert) {
+          try {
+            await this.validatePattern(event.target);
+            alert.remove();
+          } catch (errorMsg) {
+            alert.textContent = errorMsg;
+          }
+        }
+      }
     });
   }
 }
