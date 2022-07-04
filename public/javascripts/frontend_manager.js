@@ -111,15 +111,19 @@ let App = class App {
     this.manager = new Manager();
     this.view = new View();
     this.manager.contactsLoaded.then(() => this.displayContacts());
-    this.addListeners();
+    this.bindListeners();
   }
 
   async displayContacts() {
     let contacts = await this.manager.getContacts();
-    this.view.renderContacts(contacts);
+    this.view.renderContacts(contacts, 'There are no contacts.');
   }
 
-  addListeners() {
+  bindListeners() {
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
+
     this.view.bindInputKeyupEvent();
   
     let addContact = document.querySelector('#addContact');
@@ -127,6 +131,22 @@ let App = class App {
       event.preventDefault();
       this.view.renderNewContactForm();
       this.view.transitionToContactForm();
+    });
+
+    let search = document.querySelector('#search');
+    search.addEventListener('submit', event => {
+      event.preventDefault();
+    });
+
+    search.addEventListener('keyup', async event => {
+      let searchTerm = event.target.value;
+      let pattern = new RegExp(escapeRegExp(searchTerm), 'i');
+      let contacts = await this.manager.getContacts();
+      let matches = contacts.filter(contact => {
+        return contact.full_name.search(pattern) !== -1;
+      });
+
+      this.view.renderContacts(matches, `There are no contacts that match ${searchTerm}`);
     });
 
     let contactForm = document.querySelector('#form');
@@ -228,13 +248,13 @@ let View = class View {
     section.textContent = '';
   }
 
-  renderContacts(contacts) {
+  renderContacts(contacts, message) {
     let contactsSection = document.querySelector('#contacts');
     this.clearContents(contactsSection);
     if (contacts.length > 0) {
       this.insertHTML(contactsSection, 'contactList', { contacts });
     } else {
-      contactsSection.textContent = 'There are no contacts.';
+      contactsSection.textContent = message;
     }
   }
 
