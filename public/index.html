@@ -25,24 +25,23 @@
   </main>
 
   <section id="form"></section>
-  <section id="update"></section>
 
   <footer></footer>
 
   <script id="contactForm" class="hbTemplate" type="text/x-handlebars">
     <h2>{{formTitle}}</h2>
-    <form>
+    <form name="{{formName}}" data-id="{{id}}">
       <p>
         <label for="full_name">Full name: </label>
-        <input id="full_name" type="text" pattern=".+" data-alert="Please enter a name">
+        <input id="full_name" type="text" pattern=".+" data-alert="Please enter a name" value="{{full_name}}">
       </p>
       <p>
         <label for="email">Email address: </label>
-        <input id="email" type="email" pattern=".+@.+\..+" data-alert="Please enter a valid email"> 
+        <input id="email" type="email" pattern=".+@.+\..+" data-alert="Please enter a valid email" value="{{email}}"> 
       </p>
       <p>
         <label for="phone_number">Telephone number: </label>
-        <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number">
+        <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number" value="{{phone_number}}">
       </p>
       <p>
         <input name="submit" type="submit" value="Submit">
@@ -65,8 +64,8 @@
       <dt>Email:</dt>
       <dd>{{email}}</dd>
     </dl>
-    <button data-id="{{id}}" value="edit">Edit</button>
-    <button data-id="{{id}}" name="{{full_name}}" value="delete">Delete</button>
+    <button data-id="{{id}}" name="edit">Edit</button>
+    <button data-id="{{id}}" data-contact="{{full_name}}" name="delete">Delete</button>
   </script>
 
   <script id="alert" class="hbTemplate" type="text/x-handlebars">

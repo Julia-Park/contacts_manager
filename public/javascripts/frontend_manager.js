@@ -69,7 +69,7 @@ let Manager = (function() {
       });
     }
 
-    updateContact(id, data) {
+    async updateContact(id, data) {
       data.id = id;
 
       let requestOptions = {
@@ -80,7 +80,7 @@ let Manager = (function() {
         }
       }
   
-      fetch(`/api/contacts/${id}`, requestOptions).then(async response => {
+      return fetch(`/api/contacts/${id}`, requestOptions).then(async response => {
         switch (response.status) {
           case 201:
           let contactData = await response.json();
@@ -111,7 +111,6 @@ let App = class App {
     this.manager = new Manager();
     this.view = new View();
     this.manager.contactsLoaded.then(() => this.displayContacts());
-    this.view.renderNewContactForm();
     this.addListeners();
   }
 
@@ -126,26 +125,38 @@ let App = class App {
     let addContact = document.querySelector('#addContact');
     addContact.addEventListener('click', event => {
       event.preventDefault();
+      this.view.renderNewContactForm();
       this.view.transitionToContactForm();
     });
 
-    let newContact = document.querySelector('#form');
-    newContact.addEventListener('submit', async event => {
+    let contactForm = document.querySelector('#form');
+    contactForm.addEventListener('submit', async event => {
       event.preventDefault();
 
+      let form = event.target;
+      let id = form.getAttribute('data-id');
+
       try {
-        let validation = this.view.validateForm();
-        let validData = await validation;
-        await this.manager.createContact(validData);
+        let validData = await this.view.validateForm();
+
+        switch (form.name) {
+          case 'create':
+            await this.manager.createContact(validData);
+            break;
+          case 'edit':
+            await this.manager.updateContact(id, validData);
+            break;
+        }
+
         this.displayContacts();
         this.view.transitionToMain();
       } catch (errorMsg) {
-        console.log(errorMsg);
+        console.log(errorMsg); // ... should it do something else here?
       }
 
     });
 
-    newContact.addEventListener('reset', () => {
+    contactForm.addEventListener('reset', () => {
       // have to clear the alerts/errors
       this.view.transitionToMain();
     });
@@ -154,14 +165,15 @@ let App = class App {
     contacts.addEventListener('click', async event => {
       let element = event.target;
       if (element.tagName === 'BUTTON') {
-        console.log('button');
         let id = element.getAttribute('data-id');
 
-        switch(element.value) {
+        switch(element.name) {
           case 'edit':
+            this.view.renderEditContactForm(this.manager.findContact(id));
+            this.view.transitionToContactForm();
             break;
           case 'delete':
-            let confirmation = confirm(`Would you like to delete ${element.name}?`);
+            let confirmation = confirm(`Would you like to delete ${element.getAttribute('data-contact')}?`);
 
             if (confirmation) {
               await this.manager.deleteContact(id);
@@ -172,7 +184,6 @@ let App = class App {
         }
       }
     });
-
   }
 }
 
@@ -228,7 +239,15 @@ let View = class View {
   }
 
   renderNewContactForm() {
-    this.insertHTML('#form', 'contactForm', { formTitle: 'Create Contact' });
+    let formSection = document.querySelector('#form');
+    this.clearContents(formSection);
+    this.insertHTML(formSection, 'contactForm', { formTitle: 'Create Contact', formName: 'create' });
+  }
+
+  renderEditContactForm(contactData) {
+    let formSection = document.querySelector('#form');
+    this.clearContents(formSection);
+    this.insertHTML(formSection, 'contactForm', { formTitle: 'Edit Contact', formName: 'edit', ...contactData });
   }
 
   transitionToContactForm() {
@@ -237,9 +256,7 @@ let View = class View {
   }
 
   transitionToMain() {
-    let form = document.querySelector('#form');
-    form.style.display = 'none';
-    form.querySelector('form').reset();
+    document.querySelector('#form').style.display = 'none';
     document.querySelector('main').style.display = 'inline';
   }
   
