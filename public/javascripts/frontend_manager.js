@@ -219,8 +219,12 @@ let View = class View {
 
   renderContacts(contacts) {
     let contactsSection = document.querySelector('#contacts');
-    this.clearContents(contactsSection)
-    this.insertHTML(contactsSection, 'contactList', { contacts });
+    this.clearContents(contactsSection);
+    if (contacts.length > 0) {
+      this.insertHTML(contactsSection, 'contactList', { contacts });
+    } else {
+      contactsSection.textContent = 'There are no contacts.';
+    }
   }
 
   renderNewContactForm() {
