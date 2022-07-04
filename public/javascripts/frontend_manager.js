@@ -147,7 +147,7 @@ let App = class App {
     let addContact = document.querySelector('#addContact');
     addContact.addEventListener('click', event => {
       event.preventDefault();
-      this.view.renderNewContactForm();
+      this.view.renderNewContactForm(this.manager.getTags());
       this.view.transitionToContactForm();
     });
 
@@ -296,7 +296,7 @@ let View = class View {
     }
   }
 
-  renderNewContactForm() {
+  renderNewContactForm(allTags) {
     let formSection = document.querySelector('#form');
     this.clearContents(formSection);
     this.insertHTML(
@@ -305,6 +305,7 @@ let View = class View {
       {
         formTitle: 'Create Contact',
         formName: 'create',
+        allTags,
       }
     );
   }
