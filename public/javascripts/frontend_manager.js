@@ -43,8 +43,12 @@ let Manager = (function() {
       return tags.slice();
     }
 
-    addTag(tag) {
-      if (!tags.includes(tag)) tags.push(tag);
+    async addTag(tag) {
+      if (!tags.includes(tag)) {
+        tags.push(tag);
+      } else {
+        return Promise.reject();
+      };
     }
 
     addToContacts(contactData) {
@@ -172,10 +176,10 @@ let App = class App {
       event.preventDefault();
 
       let form = event.target;
-      let id = form.getAttribute('data-id');
+      let id = form.getAttribute('data-contactID');
 
       try {
-        let validData = await this.view.validateForm();
+        let validData = await this.view.validateForm(form.id);
 
         switch (form.name) {
           case 'create':
@@ -184,6 +188,16 @@ let App = class App {
           case 'edit':
             await this.manager.updateContact(id, validData);
             break;
+          case 'tags':
+            try {
+              this.manager.addTag(validData.tagName);
+              this.view.renderNewTag({ ...validData, selected: true });
+            } catch {
+              this.view.displayError('#tagName', 'This tag already exists.');
+            } finally {
+              this.view.clearTextInputs(form.id);
+            }
+            return;
         }
 
         this.displayContacts();
@@ -237,12 +251,12 @@ let View = class View {
 
       if (tags && tags.length > 0) {
         tags.forEach(tag => {
-          let tagObj = { name: tag };
+          let tagObj = { tagName: tag };
           if (selectedTags && selectedTags.includes(tag)) tagObj.selected = true;
           tagsArray.push(tagObj);
         });
       } else {
-        tagsArray.push({ name: 'none' });
+        tagsArray.push({ tagName: 'none' });
       }
 
       return tagsArray;
@@ -260,6 +274,7 @@ let View = class View {
       if (template.classList.contains('hbPartial')) {
         Handlebars.registerPartial(template.id, template.innerHTML);
       }
+      template.remove();
     });
   }
 
@@ -325,6 +340,10 @@ let View = class View {
     );
   }
 
+  renderNewTag(tag) {
+    this.insertHTML('#listTags', 'selectTag', tag);
+  }
+
   transitionToContactForm() {
     document.querySelector('main').style.display = 'none';
     document.querySelector('#form').style.display = 'inline';
@@ -334,10 +353,15 @@ let View = class View {
     document.querySelector('#form').style.display = 'none';
     document.querySelector('main').style.display = 'inline';
   }
-  
-  validateForm() {
+
+  clearTextInputs(formID) {
+    let inputs = document.querySelectorAll(`#form input[type=text][form=${formID}]`); // get all the inputs to validate
+    inputs.forEach(input => input.value = '');
+  }
+
+  validateForm(formID) {
     return new Promise(async (resolve, reject) => {
-      let inputs = document.querySelectorAll('#form input'); // get all the inputs to validate
+      let inputs = document.querySelectorAll(`#form input[form=${formID}]`); // get all the inputs to validate
       let formData = {};
       let validations = [];
       let selectedTags = [];
@@ -384,6 +408,10 @@ let View = class View {
   }
 
   displayError(element, message) {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
+    }
+
     this.insertHTML(element, 'alert', { message }, 'afterend');
     let alert = element.parentNode.querySelector('div.alert');
   }

@@ -33,7 +33,7 @@
   <footer></footer>
 
   <script id="contactForm" class="hbTemplate" type="text/x-handlebars">
-    <form name="{{formName}}" data-id="{{id}}" id="contactForm"></form>
+    <form name="{{formName}}" data-contactID="{{id}}" id="contactForm"></form>
     <form name="tags" id="tagForm"></form>
 
 
@@ -53,9 +53,16 @@
     <p>
       <fieldset> 
         <legend>Tags: </legend>
-        {{#each (handleTags allTags tags)}}
-          {{> selectTag}}
-        {{/each}}
+        <p id="listTags">
+          {{#each (handleTags allTags tags)}}
+            {{> selectTag}}
+          {{/each}}
+        </p>
+        <p>
+          <label for="tagName">Add new tag: </label>
+          <input id="tagName" type="text" pattern=".+" data-alert="Please enter a tag to add" form="tagForm">
+          <input name="submit" type="submit" value="Add" form="tagForm">
+        </p>
       </fieldset>
     </p>
     <p>
@@ -65,8 +72,8 @@
   </script>
 
   <script id="selectTag" class="hbTemplate hbPartial" type="text/x-handlebars">
-    <input type="checkbox" id="tag-{{name}}" name="tags" value="{{name}}" {{selectTag selected}}>
-    <label for="tag-{{name}}">{{name}}</label>
+    <input type="checkbox" id="tag-{{tagName}}" name="tags" value="{{tagName}}" form="contactForm" {{selectTag selected}}>
+    <label for="tag-{{tagName}}">{{tagName}}</label>
   </script>
 
   <script id="contactList" class="hbTemplate" type="text/x-handlebars">
@@ -86,7 +93,7 @@
       <dd>
         <ul>
           {{#each (handleTags tags '')}}
-            <li>{{name}}</li>
+            <li>{{tagName}}</li>
           {{/each}}
         </ul>
       </dd>
