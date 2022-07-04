@@ -177,7 +177,6 @@ let App = class App {
     });
 
     contactForm.addEventListener('reset', () => {
-      // have to clear the alerts/errors
       this.view.transitionToMain();
     });
 
@@ -214,6 +213,18 @@ let View = class View {
   }
 
   compileHandlebars() {
+    Handlebars.registerHelper('splitTags', function(string) {
+      let tagsArray = [];
+
+      if (string) {
+        string.split(',').forEach(tag => tagsArray.push({ name: tag }));
+      } else {
+        tagsArray.push({ name: 'none' });
+      }
+
+      return tagsArray;
+    });
+
     let hbTemplates = document.querySelectorAll('script[type="text/x-handlebars"]');
     let templates = this.templates;
 

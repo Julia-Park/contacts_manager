@@ -33,25 +33,40 @@
   <footer></footer>
 
   <script id="contactForm" class="hbTemplate" type="text/x-handlebars">
+    <form name="{{formName}}" data-id="{{id}}" id="contactForm"></form>
+    <form name="tags" id="tagForm"></form>
+
+
     <h2>{{formTitle}}</h2>
-    <form name="{{formName}}" data-id="{{id}}">
-      <p>
-        <label for="full_name">Full name: </label>
-        <input id="full_name" type="text" pattern=".+" data-alert="Please enter a name" value="{{full_name}}">
-      </p>
-      <p>
-        <label for="email">Email address: </label>
-        <input id="email" type="email" pattern=".+@.+\..+" data-alert="Please enter a valid email" value="{{email}}"> 
-      </p>
-      <p>
-        <label for="phone_number">Telephone number: </label>
-        <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number" value="{{phone_number}}">
-      </p>
-      <p>
-        <input name="submit" type="submit" value="Submit">
-        <input name="cancel" type="reset" value="Cancel">
-      </p>
-    </form>
+    <p>
+      <label for="full_name">Full name: </label>
+      <input id="full_name" type="text" pattern=".+" data-alert="Please enter a name" value="{{full_name}}" form="contactForm">
+    </p>
+    <p>
+      <label for="email">Email address: </label>
+      <input id="email" type="email" pattern=".+@.+\..+" data-alert="Please enter a valid email" value="{{email}}" form="contactForm"> 
+    </p>
+    <p>
+      <label for="phone_number">Telephone number: </label>
+      <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number" value="{{phone_number}}" form="contactForm">
+    </p>
+    <!-- <p>
+      <fieldset>
+        <legend>Tags: </legend>
+        {{#each (splitTags tags)}}
+          {{> tag}}
+        {{/each}}
+      </fieldset>
+    </p> -->
+    <p>
+      <input name="submit" type="submit" value="Submit" form="contactForm">
+      <input name="cancel" type="reset" value="Cancel" form="contactForm">
+    </p>
+  </script>
+
+  <script id="tag" class="hbTemplate hbPartial" type="text/x-handlebars">
+    <input type="checkbox" id="tag-{{name}}" name="tags" value="{{name}}">
+    <label for="tag-{{name}}">{{name}}</label>
   </script>
 
   <script id="contactList" class="hbTemplate" type="text/x-handlebars">
@@ -67,6 +82,14 @@
       <dd>{{phone_number}}</dd>
       <dt>Email:</dt>
       <dd>{{email}}</dd>
+      <dt>Tags: </dt>
+      <dd>
+        <ul>
+          {{#each (splitTags tags)}}
+            <li>{{name}}</li>
+          {{/each}}
+        </ul>
+      </dd>
     </dl>
     <button data-id="{{id}}" name="edit">Edit</button>
     <button data-id="{{id}}" data-contact="{{full_name}}" name="delete">Delete</button>
