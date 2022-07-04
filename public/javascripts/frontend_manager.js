@@ -14,12 +14,13 @@ let Contact = class Contact {
 
 let Manager = (function() {
   let contacts;
+  let tags = [];
 
   return class Manager {
     constructor() {
       this.contactsLoaded = this.loadContacts();
     }
-  
+
     async loadContacts() { // fetch contacts, create contact objects
       let response = await fetch('/api/contacts');
       
@@ -31,7 +32,21 @@ let Manager = (function() {
         data.forEach(this.addToContacts);
       }
     }
-  
+
+    compileTags() {
+      contacts.forEach(contact => {
+        if (contact.tags) contact.tags.split(',').forEach(this.addTag);
+      });
+    }
+
+    getTags() {
+      return tags.slice();
+    }
+
+    addTag(tag) {
+      if (!tags.includes(tag)) tags.push(tag);
+    }
+
     addToContacts(contactData) {
       contacts.push(new Contact(contactData));
     }
@@ -110,7 +125,10 @@ let App = class App {
   constructor() {
     this.manager = new Manager();
     this.view = new View();
-    this.manager.contactsLoaded.then(() => this.displayContacts());
+    this.manager.contactsLoaded.then(() => {
+      this.manager.compileTags();
+      this.displayContacts();
+    });
     this.bindListeners();
   }
 
