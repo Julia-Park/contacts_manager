@@ -59,7 +59,7 @@ let Manager = (function() {
         }
       }
   
-      await fetch('/api/contacts', requestOptions).then(async response => {
+      return fetch('/api/contacts', requestOptions).then(async response => {
         switch (response.status) {
           case 201:
           let contactData = await response.json();
@@ -90,12 +90,12 @@ let Manager = (function() {
       });
     }
 
-    deleteContact(id) {
+    async deleteContact(id) {
       let requestOptions = {
         method: 'DELETE',
       }
 
-      fetch(`/api/contacts/${id}`, requestOptions).then(response => {
+      return fetch(`/api/contacts/${id}`, requestOptions).then(response => {
         switch (response.status) {
           case 204:
             this.removeFromContacts(id);
@@ -146,7 +146,31 @@ let App = class App {
     });
 
     newContact.addEventListener('reset', () => {
+      // have to clear the alerts/errors
       this.view.transitionToMain();
+    });
+
+    let contacts = document.querySelector('#contacts');
+    contacts.addEventListener('click', async event => {
+      let element = event.target;
+      if (element.tagName === 'BUTTON') {
+        console.log('button');
+        let id = element.getAttribute('data-id');
+
+        switch(element.value) {
+          case 'edit':
+            break;
+          case 'delete':
+            let confirmation = confirm(`Would you like to delete ${element.name}?`);
+
+            if (confirmation) {
+              await this.manager.deleteContact(id);
+              this.displayContacts();
+            }
+
+            break;
+        }
+      }
     });
 
   }
