@@ -50,22 +50,22 @@
       <label for="phone_number">Telephone number: </label>
       <input id="phone_number" type="text" pattern=".+" data-alert="Please enter a phone number" value="{{phone_number}}" form="contactForm">
     </p>
-    <!-- <p>
-      <fieldset>
+    <p>
+      <fieldset> 
         <legend>Tags: </legend>
-        {{#each (splitTags tags)}}
-          {{> tag}}
+        {{#each (handleTags allTags tags)}}
+          {{> selectTag}}
         {{/each}}
       </fieldset>
-    </p> -->
+    </p>
     <p>
       <input name="submit" type="submit" value="Submit" form="contactForm">
       <input name="cancel" type="reset" value="Cancel" form="contactForm">
     </p>
   </script>
 
-  <script id="tag" class="hbTemplate hbPartial" type="text/x-handlebars">
-    <input type="checkbox" id="tag-{{name}}" name="tags" value="{{name}}">
+  <script id="selectTag" class="hbTemplate hbPartial" type="text/x-handlebars">
+    <input type="checkbox" id="tag-{{name}}" name="tags" value="{{name}}" {{selectTag selected}}>
     <label for="tag-{{name}}">{{name}}</label>
   </script>
 
@@ -85,7 +85,7 @@
       <dt>Tags: </dt>
       <dd>
         <ul>
-          {{#each (splitTags tags)}}
+          {{#each (handleTags tags '')}}
             <li>{{name}}</li>
           {{/each}}
         </ul>

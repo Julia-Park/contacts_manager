@@ -206,7 +206,7 @@ let App = class App {
 
         switch(element.name) {
           case 'edit':
-            this.view.renderEditContactForm(this.manager.findContact(id));
+            this.view.renderEditContactForm(this.manager.findContact(id), this.manager.getTags());
             this.view.transitionToContactForm();
             break;
           case 'delete':
@@ -231,16 +231,25 @@ let View = class View {
   }
 
   compileHandlebars() {
-    Handlebars.registerHelper('splitTags', function(string) {
+    Handlebars.registerHelper('handleTags', function(tags, selectedTags) {
       let tagsArray = [];
+      if (typeof tags === 'string') tags = tags.split(',');
 
-      if (string) {
-        string.split(',').forEach(tag => tagsArray.push({ name: tag }));
+      if (tags && tags.length > 0) {
+        tags.forEach(tag => {
+          let tagObj = { name: tag };
+          if (selectedTags && selectedTags.includes(tag)) tagObj.selected = true;
+          tagsArray.push(tagObj);
+        });
       } else {
         tagsArray.push({ name: 'none' });
       }
 
       return tagsArray;
+    });
+
+    Handlebars.registerHelper('selectTag', function(boolean) {
+      return boolean ? 'checked' : '';
     });
 
     let hbTemplates = document.querySelectorAll('script[type="text/x-handlebars"]');
@@ -290,13 +299,29 @@ let View = class View {
   renderNewContactForm() {
     let formSection = document.querySelector('#form');
     this.clearContents(formSection);
-    this.insertHTML(formSection, 'contactForm', { formTitle: 'Create Contact', formName: 'create' });
+    this.insertHTML(
+      formSection,
+      'contactForm',
+      {
+        formTitle: 'Create Contact',
+        formName: 'create',
+      }
+    );
   }
 
-  renderEditContactForm(contactData) {
+  renderEditContactForm(contactData, allTags) {
     let formSection = document.querySelector('#form');
     this.clearContents(formSection);
-    this.insertHTML(formSection, 'contactForm', { formTitle: 'Edit Contact', formName: 'edit', ...contactData });
+    this.insertHTML(
+      formSection,
+      'contactForm',
+      { 
+        formTitle: 'Edit Contact',
+        formName: 'edit',
+        allTags,
+        ...contactData,
+      }
+    );
   }
 
   transitionToContactForm() {
