@@ -340,26 +340,30 @@ let View = class View {
       let inputs = document.querySelectorAll('#form input'); // get all the inputs to validate
       let formData = {};
       let validations = [];
+      let selectedTags = [];
 
-      // for each input, create promise for their validation and store in validations
       inputs.forEach(input => {
-        validations.push(new Promise((resolve, reject) => {
-          let alert = input.parentNode.querySelector('div.alert');
-
-          this.validatePattern(input).then(validValue => { // if valid, put in formData, remove alert
-            if (input.id) formData[input.id] = validValue;
-            if (alert) alert.remove();
-            resolve();
-          }).catch(errorMsg => {
-            if (!alert) this.displayError(input, errorMsg);
-            reject(errorMsg);
-          });
-        }));
+        if (input.name === 'tags') {
+          if (input.checked) selectedTags.push(input.value);
+        } else { // for each input, create promise for their validation and store in validations
+          validations.push(new Promise((resolve, reject) => {
+            let alert = input.parentNode.querySelector('div.alert');
+  
+            this.validatePattern(input).then(validValue => { // if valid, put in formData, remove alert
+              if (input.id) formData[input.id] = validValue;
+              if (alert) alert.remove();
+              resolve();
+            }).catch(errorMsg => {
+              if (!alert) this.displayError(input, errorMsg);
+              reject(errorMsg);
+            });
+          }));
+        }
       });
 
       try {
         await Promise.all(validations); // wait for all validations to complete
-        resolve(formData);  // if all successful, resolve
+        resolve({ ...formData, tags: selectedTags.join(',') });  // if all successful, resolve
       } catch(errorMsg) {
         reject(errorMsg); // if one unsuccessful, reject
       }
