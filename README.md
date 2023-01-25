@@ -1,12 +1,15 @@
 # Contact Manager
-A Launch School JS239 practice project.
+
 Implementation of a front-end JavaScript web application for a contact manager.
 Server-side API provided by Launch School.
+A Launch School practice project.
 
 # Features and Requirements:
+
 - Should use Handlebars for templating
 
 **Display contacts:**
+
 - Display all contacts on the home page
   - Each contact has Name, Phone Number, Email
   - Each contact has an Edit and Delete button
@@ -15,6 +18,7 @@ Server-side API provided by Launch School.
 - If there are no contacts, display a "There is no contacts." message and an Add Contact button below it.
 
 **Add contact:**
+
 - Add contact button on home page
 - Display a Create Contact form with Full name, Email address, Telephone number, as well as a Submit and Cancel (closes/hides the form) button
   - Validation:
@@ -23,15 +27,18 @@ Server-side API provided by Launch School.
     - Phone (must not be blank)
 
 **Search**
+
 - Seems to search based on matching the name, not case sensitive (on keyup); doesn't seem to be any throttling
 - If there are no matching results: 'there is no contacts starting with xx'
 
 **Tagging**
+
 - Allow for creation of tags ("marketing", "sales", "engineering")
 - Allow for selection of a tag to attach at contact creation
 - Allow for displaying of all contacts for a given tag
 
 **Styling**
+
 - Header banner
 - Some animations for transitions
 - Footer
